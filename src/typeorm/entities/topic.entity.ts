@@ -2,23 +2,23 @@ import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } fro
 
 @Entity()
 export class Topic {
-  @PrimaryColumn({ length: 200 })
-  ID: string;
+  @PrimaryColumn({ name: 'ID', length: 200 })
+  id: string;
 
-  @Column({ length: 200 })
-  NAME: string;
+  @Column({ name: 'NAME', length: 200 })
+  name: string;
 
-  @Column({ length: 200 })
-  DESCRIPTION: string;
+  @Column({ name: 'DESCRIPTION', length: 200 })
+  description: string;
 
   @Column({ name: 'OWNER_ID', length: 200 })
-  OWNER_ID: string;
+  ownerId: string;
 
   @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
-  CREATED_AT: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
-  UPDATED_AT: Date;
+  updatedAt: Date;
 
 
 }

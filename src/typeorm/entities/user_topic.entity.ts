@@ -14,9 +14,9 @@ export class UserTopic {
   @Column({ name: 'VIEWER', default: false })
   viewer: boolean;
 
-  @CreateDateColumn({ name: 'CREATED_AT' })
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT' })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
   updatedAt: Date;
 }

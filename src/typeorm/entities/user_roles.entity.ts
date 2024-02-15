@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 
 @Entity()
 export class UserRole {
-  @PrimaryGeneratedColumn({ name: 'ROLE_ID' })
+  @Column({ name: 'ROLE_ID' })
   roleId: number;
 
   @Column({ name: 'VIEWER', default: false })
@@ -17,9 +17,9 @@ export class UserRole {
   @Column({ name: 'SUPER_ADMIN', default: false })
   superAdmin: boolean;
 
-  @CreateDateColumn({ name: 'CREATED_AT' })
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT' })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
   updatedAt: Date;
 }
