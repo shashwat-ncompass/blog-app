@@ -13,5 +13,3 @@ export class UserCredential {
   @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   updatedAt: Date;
 }
-
-export type UserCredentialData = Partial<Omit<UserCredential, 'createdAt' | 'updatedAt'>>;

@@ -6,7 +6,7 @@ import { User } from 'src/typeorm/entities/users.entity';
 import { Repository } from 'typeorm';
 import { Md5 } from 'ts-md5';
 import { JwtService } from '@nestjs/jwt';
-import { UserCredential, UserCredentialData } from 'src/typeorm/entities/user_credentials.entity';
+import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
 import { customError } from 'src/utils/exceptionHandler';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { createRoleDto } from './dtos/createRole.dto';
@@ -16,6 +16,7 @@ export class AuthService {
     constructor(private jwtService: JwtService) { };
     @InjectRepository(User) private userRepository: Repository<User>
     @InjectRepository(UserCredential) private userCredentialRepository: Repository<UserCredential>
+    @InjectRepository(UserRole) private userRoleRepository: Repository<UserRole>
 
 
     async createUser(userDetails: createUserParams, userPasswordDetails: createUserPasswordParams) {
@@ -23,33 +24,20 @@ export class AuthService {
             const assignRole: createRoleDto = {
                 userId: userDetails.id
             }
+            
+            const userRole = this.userRoleRepository.create(assignRole);
+            const userCredential = this.userCredentialRepository.create(userPasswordDetails);
+            const user = this.userRepository.create(userDetails);
 
-            const createNewUserPasswordResponse = await
-                this.userRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(UserCredential)
-                    .values(userPasswordDetails)
-                    .execute()
+            user.role_details = userRole;
+            user.password_details = userCredential;
 
-
-            const createUserRoleResponse = await
-                this.userRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(UserRole)
-                    .values(assignRole)
-                    .execute()
-
-            const createNewUserResponse = await
-                this.userRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(User)
-                    .values(userDetails)
-                    .execute()
-
-
+            const createNewUserResponse = await this.userRepository
+                .createQueryBuilder()
+                .insert()
+                .into(User)
+                .values(user)
+                .execute();
 
             return createNewUserResponse;
 

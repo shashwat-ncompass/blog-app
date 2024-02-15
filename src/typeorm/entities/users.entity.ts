@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
 import { UserRole } from './user_roles.entity';
+import { UserCredential } from './user_credentials.entity';
 
 @Entity()
 export class User {
@@ -13,12 +14,17 @@ export class User {
   @Column({ name: 'EMAIL', length: 200 })
   email: string;
 
-  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)"  })
+  @OneToOne(() => UserRole)
+  @JoinColumn()
+  role_details: UserRole
+
+  @OneToOne(() => UserCredential)
+  @JoinColumn()
+  password_details: UserCredential
+
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)"  })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   updatedAt: Date;
-
-  @OneToOne(() => UserRole)
-  role_details: UserRole
 }
