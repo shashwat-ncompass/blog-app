@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Next, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, HttpException, Next, Post, Res } from '@nestjs/common';
 import { createUserDto } from './dtos/createUser.dto';
 import { NextFunction, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,6 +32,21 @@ export class AuthController {
 
         } catch (error) {
             next(error)
+        }
+    }
+
+    @Post("login")
+    async login(@Body() body : { email : string, password : string}, @Res() res: Response, @Next() next: NextFunction) {
+        try {
+            const user = await this.authService.validateUser(body.email, body.password);
+            if(!user)
+                throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+            const token = await this.authService.login(body.email, body.password);
+            return new ApiResponse(HttpStatus.OK, 'Login successful', token, res);
+        }
+
+        catch(error){
+            next(error);
         }
     }
 }
