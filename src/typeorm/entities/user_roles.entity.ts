@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class UserRole {
-  @Column({ name: 'ROLE_ID' })
-  roleId: number;
+  @PrimaryColumn({ name: 'USER_ID' })
+  userId: string;
 
-  @Column({ name: 'VIEWER', default: false })
+  @Column({ name: 'VIEWER', default: true })
   viewer: boolean;
 
   @Column({ name: 'EDITOR', default: false })
@@ -17,9 +17,9 @@ export class UserRole {
   @Column({ name: 'SUPER_ADMIN', default: false })
   superAdmin: boolean;
 
-  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   updatedAt: Date;
 }

@@ -19,6 +19,4 @@ export class Topic {
 
   @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
   updatedAt: Date;
-
-
 }

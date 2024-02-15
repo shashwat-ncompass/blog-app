@@ -1,16 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from 'typeorm';
 @Entity()
 export class UserCredential {
-  @Column({ name: 'ID' })
-  id: number;
+  @PrimaryColumn({ name: 'ID' })
+  id: string;
 
   @Column({ name: 'PASSWORD' })
   password: string;
 
-  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
   updatedAt: Date;
 }
+
+export type UserCredentialData = Partial<Omit<UserCredential, 'createdAt' | 'updatedAt'>>;
