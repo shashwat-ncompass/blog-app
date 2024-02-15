@@ -14,44 +14,44 @@ import { createRoleDto } from './dtos/createRole.dto';
 export class AuthService {
 
     @InjectRepository(User) private userRepository: Repository<User>
-
+    @InjectRepository(UserCredential) private userCredentialRepository: Repository<UserCredential>
+    @InjectRepository(UserRole) private userRoleRepository: Repository<UserRole>
+    
     async createUser(userDetails: createUserParams, userPasswordDetails: createUserPasswordParams) {
         try {
-            const assignRole: createRoleDto = {
-                userId: userDetails.id
-            }
+            const userRole = this.userRoleRepository.create({ userId: userDetails.id });
+            const userCredential = this.userCredentialRepository.create({ ...userPasswordDetails });
 
             const createNewUserPasswordResponse = await
-                this.userRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(UserCredential)
-                    .values(userPasswordDetails)
-                    .execute()
-
+                this.userCredentialRepository
+                    .save(userCredential)
+                    .then((credential) => {
+                        return credential
+                    });
 
             const createUserRoleResponse = await
-                this.userRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(UserRole)
-                    .values(assignRole)
-                    .execute()
+                this.userRoleRepository
+                    .save(userRole)
+                    .then((role) => {
+                        return role;
+                    });
 
             const createNewUserResponse = await
                 this.userRepository
-                    .createQueryBuilder()
-                    .insert()
-                    .into(User)
-                    .values(userDetails)
-                    .execute()
+                    .save({
+                        ...userDetails,
+                        role_details: createUserRoleResponse,
+                        password_details: createNewUserPasswordResponse
+                    })
+                    .then((user) => {
+                        return user;
+                    });
 
-
-
-            return createNewUserResponse;
+            return createNewUserResponse
 
         } catch (error) {
             return new customError(HttpStatus.INTERNAL_SERVER_ERROR, "Some Error Occured", error.message)
         }
     }
+
 }
