@@ -2,15 +2,15 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 
 @Entity()
 export class UserCredential {
-  @PrimaryGeneratedColumn({ name: 'ID' })
+  @Column({ name: 'ID' })
   id: number;
 
   @Column({ name: 'PASSWORD' })
   password: string;
 
-  @CreateDateColumn({ name: 'CREATED_AT' })
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT' })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
   updatedAt: Date;
 }

@@ -14,9 +14,9 @@ export class User {
   @Column({ name: 'ROLE_ID', length: 200 })
   roleId: string;
 
-  @CreateDateColumn({ name: 'CREATED_AT' })
+  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT' })
+  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp' })
   updatedAt: Date;
 }
