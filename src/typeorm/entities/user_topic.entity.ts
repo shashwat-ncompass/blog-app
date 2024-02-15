@@ -1,6 +1,6 @@
 import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from 'typeorm';
 
-@Entity('USER_TOPIC')
+@Entity()
 export class UserTopic {
   @PrimaryColumn({ name: 'TOPIC_ID', length: 200 })
   topicId: string;
