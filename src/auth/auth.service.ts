@@ -21,25 +21,35 @@ export class AuthService {
 
     async createUser(userDetails: createUserParams, userPasswordDetails: createUserPasswordParams) {
         try {
-            const assignRole: createRoleDto = {
-                userId: userDetails.id
-            }
-            
-            const userRole = this.userRoleRepository.create(assignRole);
-            const userCredential = this.userCredentialRepository.create(userPasswordDetails);
-            const user = this.userRepository.create(userDetails);
+            const userRole = this.userRoleRepository.create({ userId: userDetails.id });
+            const userCredential = this.userCredentialRepository.create({ ...userPasswordDetails });
 
-            user.role_details = userRole;
-            user.password_details = userCredential;
+            const createNewUserPasswordResponse = await
+                this.userCredentialRepository
+                    .save(userCredential)
+                    .then((credential) => {
+                        return credential
+                    });
 
-            const createNewUserResponse = await this.userRepository
-                .createQueryBuilder()
-                .insert()
-                .into(User)
-                .values(user)
-                .execute();
+            const createUserRoleResponse = await
+                this.userRoleRepository
+                    .save(userRole)
+                    .then((role) => {
+                        return role;
+                    });
 
-            return createNewUserResponse;
+            const createNewUserResponse = await
+                this.userRepository
+                    .save({
+                        ...userDetails,
+                        role_details: createUserRoleResponse,
+                        password_details: createNewUserPasswordResponse
+                    })
+                    .then((user) => {
+                        return user;
+                    });
+
+            return createNewUserResponse
 
         } catch (error) {
             return new customError(HttpStatus.INTERNAL_SERVER_ERROR, "Some Error Occured", error.message)
