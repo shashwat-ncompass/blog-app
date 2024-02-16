@@ -12,13 +12,14 @@ import { User } from './typeorm/entities/users.entity';
 import { UserRole } from './typeorm/entities/user_roles.entity';
 import { UserTopic } from './typeorm/entities/user_topic.entity';
 
-
-
-
 @Module({
-  imports: [AuthModule, TopicModule, UserModule, ConfigModule.forRoot({
-    envFilePath: '.env',
-  }),
+  imports: [
+    AuthModule,
+    TopicModule,
+    UserModule,
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -38,5 +39,4 @@ import { UserTopic } from './typeorm/entities/user_topic.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
-
+export class AppModule {}

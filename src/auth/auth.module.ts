@@ -10,23 +10,16 @@ import { jwtConstants } from './constants';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { UserService } from 'src/user/user.service';
 
-
-
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      UserCredential,
-      User,
-      UserRole
-    ]),
+    TypeOrmModule.forFeature([UserCredential, User, UserRole]),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60m' }
+      signOptions: { expiresIn: '60m' },
     }),
   ],
-  providers: [AuthService, UserService
-  ],
-  controllers: [AuthController]
+  providers: [AuthService, UserService],
+  controllers: [AuthController],
 })
-export class AuthModule { }
+export class AuthModule {}

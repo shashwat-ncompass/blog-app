@@ -1,6 +1,6 @@
 export class CreateTopicDto {
-  id: string
+  id: string;
   name: string;
   description: string;
-  ownerId: string
+  ownerId: string;
 }

@@ -1,4 +1,4 @@
 export type createUserPasswordParams = {
-    id: string;
-    password: string
-}
+  id: string;
+  password: string;
+};
