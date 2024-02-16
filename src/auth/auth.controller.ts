@@ -38,18 +38,17 @@ export class AuthController {
 
     @Post("login")
     async login(@Body() body: { email: string, password: string }, @Res() res: Response, @Next() next: NextFunction) {
-        try {
-            const user = await this.authService.validateUser(body.email, body.password);
-            if (!user)
-                throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-            
-            const token = await this.authService.login(body.email, body.password);
-            
-            return new ApiResponse(HttpStatus.OK, 'Login successful', token, res);
-        }
+    try {
+        const user = await this.authService.validateUser(body.email, body.password);
+        if (!user)
+            return new customError(HttpStatus.UNAUTHORIZED, 'Invalid credentials', 'User not found or invalid password');
 
-        catch (error) {
-            next(error);
-        }
+        const token = await this.authService.login(body.email, body.password);
+
+        return new ApiResponse(HttpStatus.OK, 'Login successful', token, res);
+    } catch (error) {
+        next(new customError(HttpStatus.INTERNAL_SERVER_ERROR, 'Login Failed', error.message));
     }
+}
+
 }
