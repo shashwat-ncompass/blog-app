@@ -1,11 +1,11 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
   HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { Topic } from '../typeorm/entities/topic.entity';
 import { CreateTopicDto } from 'src/topic/dtos/topic.dto';
 import { User } from '../typeorm/entities/users.entity';
@@ -14,6 +14,7 @@ import { GetTopicDto } from './dtos/getTopics.dto';
 import { assignTopicRoleParams } from './types/assignTopicRole';
 import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
 import { customError } from 'src/utils/exceptionHandler';
+
 @Injectable()
 export class TopicsService {
   constructor(
@@ -30,22 +31,29 @@ export class TopicsService {
   async createTopic(
     userId: string,
     createTopicDto: CreateTopicDto,
-  ): Promise<Topic> {
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+  ) {
     try {
-      return await this.topicRepository.save(createTopicDto);
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!user) {
+        return new customError(
+          HttpStatus.UNAUTHORIZED,
+          'Invalid Credentials',
+          'User not found',
+        );
+      }
+      const createTopicResponse = await this.topicRepository.save(createTopicDto);
+      return createTopicResponse
     } catch (error) {
-      // Handle error, e.g., log or re-throw
-      throw error;
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
     }
   }
 
@@ -104,57 +112,4 @@ export class TopicsService {
       );
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // async getTopicById(userId: number, topicId: number): Promise<TopicDto> {
-  //   // Fetch user details along with user role
-  //   const user = await this.userRepository.findOne(userId, { relations: ['role'] });
-
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-
-  //   // Check if the user is a viewer, admin, or superadmin
-  //   if (user.role.viewer || user.role.admin || user.role.superadmin) {
-  //     // Fetch topic by ID
-  //     const topic = await this.topicRepository.findOne(topicId);
-  //     if (!topic) {
-  //       throw new NotFoundException('Topic not found');
-  //     }
-  //     return { name: topic.name, description: topic.description };
-  //   } else {
-  //     throw new ForbiddenException('User does not have permission to view topics');
-  //   }
-  // }
 }
