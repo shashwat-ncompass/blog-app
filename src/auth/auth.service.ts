@@ -10,10 +10,11 @@ import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
 import { customError } from 'src/utils/exceptionHandler';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { createRoleDto } from './dtos/createRole.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private jwtService: JwtService) { };
+    constructor(private jwtService: JwtService, private userService: UserService) { };
     @InjectRepository(User) private userRepository: Repository<User>
     @InjectRepository(UserCredential) private userCredentialRepository: Repository<UserCredential>
     @InjectRepository(UserRole) private userRoleRepository: Repository<UserRole>
@@ -73,8 +74,8 @@ export class AuthService {
 
     async login(email: string, password: string): Promise<any> {
         const user = await this.validateUser(email, password);
-        console.log(user)
-        const payload = { email: (user).email, id: (user).id };
+        const rolesArray = await this.userService.findUserById(user.id)
+        const payload = { email: (user).email, id: (user).id, roles: rolesArray };
         const token = await this.jwtService.signAsync(payload);
         return token;
     }

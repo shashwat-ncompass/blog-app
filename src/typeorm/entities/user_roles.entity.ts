@@ -14,7 +14,7 @@ export class UserRole {
   @Column({ name: 'ADMIN', default: false })
   admin: boolean;
 
-  @Column({ name: 'SUPER_ADMIN', default: false })
+  @Column({ name: 'SUPERADMIN', default: false })
   superAdmin: boolean;
 
   @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
