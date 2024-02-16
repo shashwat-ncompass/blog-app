@@ -7,11 +7,10 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 
-
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserRole])],
   providers: [UserService, JwtService, JwtStrategy],
   controllers: [UserController],
-  exports: [UserService]
+  exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

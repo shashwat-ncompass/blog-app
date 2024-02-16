@@ -1,3 +1,3 @@
 export class createRoleDto {
-    userId: string;
+  userId: string;
 }

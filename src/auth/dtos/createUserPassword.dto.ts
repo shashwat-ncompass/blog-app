@@ -1,4 +1,4 @@
 export type createUserPasswordDetailsDto = {
-    id: string;
-    password: string
-}
+  id: string;
+  password: string;
+};

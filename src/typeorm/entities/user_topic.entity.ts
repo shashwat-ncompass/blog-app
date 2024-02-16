@@ -1,12 +1,23 @@
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryColumn,
+  ManyToMany,
+  JoinTable,
+  JoinColumn,
+} from 'typeorm';
+import { Topic } from './topic.entity';
 
 @Entity()
 export class UserTopic {
-  @PrimaryColumn({ name: 'TOPIC_ID', length: 200 })
-  topicId: string;
 
-  @PrimaryColumn({ name: 'USER_ID', length: 200 })
+  @PrimaryColumn({ name: 'USER_ID', length: 200, nullable: false, unique: true })
   userId: string;
+
+  @Column()
+  topicId: string;
 
   @Column({ name: 'EDITOR', default: false })
   editor: boolean;

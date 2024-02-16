@@ -1,4 +1,10 @@
-import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryColumn,
+} from 'typeorm';
 @Entity()
 export class UserCredential {
   @PrimaryColumn({ name: 'ID' })
@@ -7,9 +13,17 @@ export class UserCredential {
   @Column({ name: 'PASSWORD' })
   password: string;
 
-  @CreateDateColumn({ name: 'CREATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
+  @CreateDateColumn({
+    name: 'CREATED_AT',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'UPDATED_AT', type: 'timestamp', default: () => "CURRENT_TIMESTAMP(6)" })
+  @UpdateDateColumn({
+    name: 'UPDATED_AT',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   updatedAt: Date;
 }
