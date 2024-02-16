@@ -8,6 +8,8 @@ import { User } from 'src/typeorm/entities/users.entity';
 import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
 import { jwtConstants } from './constants';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
+import { UserService } from 'src/user/user.service';
+
 
 
 @Module({
@@ -23,7 +25,8 @@ import { UserRole } from 'src/typeorm/entities/user_roles.entity';
       signOptions: { expiresIn: '60m' }
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, UserService
+  ],
   controllers: [AuthController]
 })
 export class AuthModule { }

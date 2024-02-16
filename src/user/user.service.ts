@@ -4,6 +4,24 @@ import { User } from 'src/typeorm/entities/users.entity';
 import { customError } from 'src/utils/exceptionHandler';
 import { Repository } from 'typeorm';
 
+
+
+function filterUserRoles(userObj: any): string[] {
+    const roleKeys = [
+        "UserRole_VIEWER",
+        "UserRole_EDITOR",
+        "UserRole_ADMIN",
+        "UserRole_SUPER_ADMIN",
+    ];
+    const includedRoles: string[] = [];
+    roleKeys.forEach((roleKey) => {
+        if (userObj[0][roleKey] === 1) {
+            includedRoles.push(roleKey.split('_')[1]);
+        }
+    });
+    return includedRoles;
+}
+
 @Injectable()
 export class UserService {
 
@@ -11,14 +29,15 @@ export class UserService {
 
     async findUserById(id: string) {
         try {
-            const response = await
+            const userProfileResponse = await
                 this.userRepository
                     .createQueryBuilder('u')
                     .leftJoinAndSelect("u.role_details", 'UserRole')
                     .leftJoinAndSelect("u.password_details", 'UserCredential')
                     .where(`u.ID = :ID`, { ID: id })
                     .execute();
-            return response;
+            const roleArray = filterUserRoles(userProfileResponse)
+            return { roleArray, userProfileResponse };
         } catch (error) {
             return new customError(HttpStatus.INTERNAL_SERVER_ERROR, "Some Error Occured", error.message)
         }

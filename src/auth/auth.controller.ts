@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { customError } from 'src/utils/exceptionHandler';
 import { ApiResponse } from 'src/utils/apiResponse';
 import { Md5 } from 'ts-md5';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
@@ -36,16 +37,18 @@ export class AuthController {
     }
 
     @Post("login")
-    async login(@Body() body : { email : string, password : string}, @Res() res: Response, @Next() next: NextFunction) {
+    async login(@Body() body: { email: string, password: string }, @Res() res: Response, @Next() next: NextFunction) {
         try {
             const user = await this.authService.validateUser(body.email, body.password);
-            if(!user)
+            if (!user)
                 throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+            
             const token = await this.authService.login(body.email, body.password);
+            
             return new ApiResponse(HttpStatus.OK, 'Login successful', token, res);
         }
 
-        catch(error){
+        catch (error) {
             next(error);
         }
     }
