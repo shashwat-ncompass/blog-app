@@ -46,8 +46,8 @@ export class TopicsController {
   @Post('create')
   async createTopic(
     @Req() req: Request,
-    @Res() res: Response
-    @Next() next: NextFunction
+    @Res() res: Response,
+    @Next() next: NextFunction,
     @Body() createTopicDto: CreateTopicDto,
   ) {
     try {
