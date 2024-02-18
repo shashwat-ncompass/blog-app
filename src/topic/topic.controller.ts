@@ -9,6 +9,7 @@ import {
   Res,
   Next,
   HttpStatus,
+  Param,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuid } from 'uuid';
@@ -29,6 +30,7 @@ import { assignTopicRoleDto } from './dtos/assignTopicRole.dto';
 import { ApiResponse } from 'src/utils/apiResponse';
 import { customError } from 'src/utils/exceptionHandler';
 import { Topic } from 'src/typeorm/entities/topic.entity';
+import { updateTopicDto } from './dtos/updateTopicDto';
 
 
 @UseGuards(JwtGuard, RolesGuard)
@@ -46,8 +48,8 @@ export class TopicsController {
   @Post('create')
   async createTopic(
     @Req() req: Request,
-    @Res() res: Response
-    @Next() next: NextFunction
+    @Res() res: Response,
+    @Next() next: NextFunction,
     @Body() createTopicDto: CreateTopicDto,
   ) {
     try {
@@ -117,6 +119,31 @@ export class TopicsController {
       );
     } catch (error) {
       next(error);
+    }
+  }
+
+  @HasRoles(Role.ADMIN, Role.SUPERADMIN)
+  @Post(":id/update")
+  async updateTopic(
+    @Param() id: number,
+    @Body() updateTopicDto: updateTopicDto,
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const updateTopicResponse = await this.topicsService.updateTopic(req['user']['userId'], id['id'].toString(), updateTopicDto)
+      if (updateTopicResponse instanceof customError) {
+        throw updateTopicResponse
+      }
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        'Topic Updated Successfully',
+        updateTopicResponse,
+        res,
+      );
+    } catch (error) {
+      next(error)
     }
   }
 }
