@@ -9,7 +9,6 @@ import { JwtService } from '@nestjs/jwt';
 import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
 import { customError } from 'src/utils/exceptionHandler';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
-import { createRoleDto } from './dtos/createRole.dto';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()

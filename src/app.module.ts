@@ -11,6 +11,7 @@ import { UserCredential } from './typeorm/entities/user_credentials.entity';
 import { User } from './typeorm/entities/users.entity';
 import { UserRole } from './typeorm/entities/user_roles.entity';
 import { UserTopic } from './typeorm/entities/user_topic.entity';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UserTopic } from './typeorm/entities/user_topic.entity';
         synchronize: true,
       }),
     }),
+    BlogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
