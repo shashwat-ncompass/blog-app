@@ -9,26 +9,22 @@ import {
   Res,
   Next,
   HttpStatus,
-  Param,
 } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+import { NextFunction, Request, Response } from 'express';
+import { Repository } from 'typeorm';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { TopicsService } from './topic.service';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
-import { UnauthorizedException } from '@nestjs/common';
 import { CreateTopicDto } from './dtos/topic.dto';
-import { GetTopicDto } from './dtos/getTopics.dto';
-import { GetTopicByIdDto } from './dtos/getTopicsById.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/auth/enums';
 import { HasRoles } from 'src/auth/decorators/has-roles.decorator';
-import { v4 as uuid } from 'uuid';
 import { assignTopicRoleDto } from './dtos/assignTopicRole.dto';
-import { NextFunction, Request, Response } from 'express';
 import { ApiResponse } from 'src/utils/apiResponse';
 import { customError } from 'src/utils/exceptionHandler';
-import { Repository } from 'typeorm';
 import { Topic } from 'src/typeorm/entities/topic.entity';
 import { updateTopicDto } from './dtos/updateTopicDto';
 

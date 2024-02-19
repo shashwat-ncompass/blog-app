@@ -13,8 +13,6 @@ import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { GetTopicDto } from './dtos/getTopics.dto';
 import { assignTopicRoleParams } from './types/assignTopicRole';
 import { customError } from 'src/utils/exceptionHandler';
-
-import { GetTopicByIdDto } from './dtos/getTopicsById.dto';
 import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
 import { updateTopicParams } from './types/updateTopicParams';
 
@@ -62,17 +60,32 @@ export class TopicsService {
   }
 
   async getTopics(userId: string): Promise<any> {
+
     try {
       const user = await this.userRepository.findOne({
         where: {
           id: userId,
         },
       });
+
       if (!user) {
         return new customError(404, "Some Error Occured", 'User not found');
       }
 
       const topics = await this.topicRepository.find();
+
+
+      if (!user) {
+        // throw new NotFoundException('User not found');
+        return new customError(404, "Some Error Occured", 'User not found');
+      }
+
+      // Check if the user is a viewer, admin, or superadmin
+      // if (user.role_details.viewer || user.role_details.admin || user.role_details.superAdmin) {
+      // Fetch topics if user has appropriate permissions
+      const topics = await this.topicRepository.find();
+      //return topics.map(topic => ({ name: topic.name, description: topic.description }));
+
       const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
         id: topic.id,
         name: topic.name,
@@ -125,6 +138,7 @@ export class TopicsService {
       if (!userTopic || (!userTopic.editor && !userTopic.viewer)) {
         return new customError(403, "Some Error Occured", 'User does not have permission to view this topic');
       }
+
       const topic = await this.topicRepository.findOne({
         where: {
           id: topicId
@@ -133,6 +147,9 @@ export class TopicsService {
       if (!topic) {
         return new customError(403, "Some Error Occured", 'Topic Not Found');
       }
+
+
+
       return topic;
     }
     catch (error) {

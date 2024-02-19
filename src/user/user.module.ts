@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/typeorm/entities/users.entity';
-import { JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 
