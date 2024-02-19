@@ -1,7 +1,7 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
+  ForbiddenException, Inject,
   HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,8 +12,11 @@ import { User } from '../typeorm/entities/users.entity';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { GetTopicDto } from './dtos/getTopics.dto';
 import { assignTopicRoleParams } from './types/assignTopicRole';
-import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
 import { customError } from 'src/utils/exceptionHandler';
+import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
+import { updateTopicParams } from './types/updateTopicParams';
+
+
 @Injectable()
 export class TopicsService {
   constructor(
@@ -30,57 +33,64 @@ export class TopicsService {
   async createTopic(
     userId: string,
     createTopicDto: CreateTopicDto,
-  ): Promise<Topic> {
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+  ) {
     try {
-      return await this.topicRepository.save(createTopicDto);
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!user) {
+        return new customError(
+          HttpStatus.UNAUTHORIZED,
+          'Invalid Credentials',
+          'User not found',
+        );
+      }
+      const createTopicResponse = await this.topicRepository.save(createTopicDto);
+      return createTopicResponse
     } catch (error) {
-      // Handle error, e.g., log or re-throw
-      throw error;
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
     }
   }
 
-  async getTopics(userId: string): Promise<GetTopicDto[]> {
-    // Fetch user details along with user role
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
+  async getTopics(userId: string): Promise<any> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+      if (!user) {
+        return new customError(404, "Some Error Occured", 'User not found');
+      }
+      if (!user) {
+        return new customError(404, "Some Error Occured", 'User not found');
+      }
+      const topics = await this.topicRepository.find();
+      const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
+        id: topic.id,
+        name: topic.name,
+        description: topic.description,
+        ownerId: topic.ownerId,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
+      }));
+      return getTopicDtos;
+    } catch (error) {
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
     }
-
-    // Check if the user is a viewer, admin, or superadmin
-    // if (user.role_details.viewer || user.role_details.admin || user.role_details.superAdmin) {
-    // Fetch topics if user has appropriate permissions
-    const topics = await this.topicRepository.find();
-    //return topics.map(topic => ({ name: topic.name, description: topic.description }));
-    const getTopicDtos: GetTopicDto[] = topics.map((topic) => ({
-      id: topic.id,
-      name: topic.name,
-      description: topic.description,
-      ownerId: topic.ownerId,
-      createdAt: topic.createdAt,
-      updatedAt: topic.updatedAt,
-    }));
-    return getTopicDtos;
-
-    // } else {
-    //   throw new ForbiddenException('User does not have permission to view topics');
-    // }
   }
-
 
   async assignTopicRole(assignTopicRoleParams: assignTopicRoleParams) {
     try {
@@ -105,56 +115,83 @@ export class TopicsService {
     }
   }
 
+  async getTopicById(userId: string, topicId: string): Promise<any> {
+    try {
+      const userTopic = await this.userTopicRepository.findOne({
+        where: {
+          topicId,
+          userId,
+        },
+      })
+      if (!userTopic || (!userTopic.editor && !userTopic.viewer)) {
+        return new customError(403, "Some Error Occured", 'User does not have permission to view this topic');
+      }
+
+      const topic = await this.topicRepository.findOne({
+        where: {
+          id: topicId
+        }
+      });
+      if (!topic) {
+        return new customError(403, "Some Error Occured", 'Topic Not Found');
+      }
 
 
 
+      return topic;
+    }
+    catch (error) {
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
+    }
+  }
 
+  async updateTopic(
+    reqUserId: string,
+    id: string,
+    updateTopicParams: updateTopicParams
+  ) {
+    try {
+      const fetchTopicResponse = await this.topicRepository
+        .createQueryBuilder()
+        .select()
+        .where('ID=:ID', { ID: id })
+        .getOne()
 
+      if (reqUserId !== fetchTopicResponse.ownerId) {
+        return new customError(
+          HttpStatus.FORBIDDEN,
+          'Some Error Occured',
+          'Access denied',
+        );
+      }
 
+      if (fetchTopicResponse === null) {
+        return new customError(
+          HttpStatus.NOT_FOUND,
+          'Some Error Occured',
+          'Topic not found',
+        );
+      }
 
+      const updateTopicResponse = await this.topicRepository
+        .createQueryBuilder()
+        .update()
+        .set({ [updateTopicParams.fieldToUpdate]: [updateTopicParams.newValue] })
+        .where('ID=:ID', { ID: id })
+        .execute()
 
+      return updateTopicResponse;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // async getTopicById(userId: number, topicId: number): Promise<TopicDto> {
-  //   // Fetch user details along with user role
-  //   const user = await this.userRepository.findOne(userId, { relations: ['role'] });
-
-  //   if (!user) {
-  //     throw new NotFoundException('User not found');
-  //   }
-
-  //   // Check if the user is a viewer, admin, or superadmin
-  //   if (user.role.viewer || user.role.admin || user.role.superadmin) {
-  //     // Fetch topic by ID
-  //     const topic = await this.topicRepository.findOne(topicId);
-  //     if (!topic) {
-  //       throw new NotFoundException('Topic not found');
-  //     }
-  //     return { name: topic.name, description: topic.description };
-  //   } else {
-  //     throw new ForbiddenException('User does not have permission to view topics');
-  //   }
-  // }
+    } catch (error) {
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
+    }
+  }
 }

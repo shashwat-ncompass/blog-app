@@ -7,15 +7,15 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
-import { createUserDto } from './dtos/createUser.dto';
-import { NextFunction, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { NextFunction, Response } from 'express';
+
+import { createUserDto } from './dtos/createUser.dto';
 import { createUserPasswordDetailsDto } from './dtos/createUserPassword.dto';
 import { AuthService } from './auth.service';
 import { customError } from 'src/utils/exceptionHandler';
 import { ApiResponse } from 'src/utils/apiResponse';
-import { Md5 } from 'ts-md5';
-import { UserService } from 'src/user/user.service';
+import { encrypt } from 'src/utils/encrypt';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +29,8 @@ export class AuthController {
   ) {
     try {
       createUserDto['id'] = uuidv4();
-      const encryptedPassword = Md5.hashStr(createUserDto['password']);
+
+      const encryptedPassword = encrypt(createUserDto['password']);
       const createUserPassword: createUserPasswordDetailsDto = {
         id: createUserDto.id,
         password: encryptedPassword,
