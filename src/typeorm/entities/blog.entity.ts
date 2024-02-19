@@ -1,5 +1,4 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn  } from 'typeorm';
-import { customError } from 'src/utils/exceptionHandler';
 import { User } from './users.entity';
 
 
