@@ -13,6 +13,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { NextFunction, Request, Response } from 'express';
 
+
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/auth/enums';
@@ -111,6 +112,25 @@ export class BlogController {
       );
     } catch (error) {
       next(error)
+    }
+  }
+
+  @Get('topic/:topicId')
+  async getBlogsByTopic(@Param('topicId') topicId: string, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const blogs = await this.blogService.findAllBlogsForTopic(topicId);
+      if(blogs instanceof customError){
+        throw blogs;
+      }
+
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        "Blogs loaded",
+        blogs,
+        res,
+      )
+    } catch (error) {
+      next(error);
     }
   }
 }
