@@ -21,6 +21,16 @@ Post <br>
   }
 </p>
 <br>
+<h2>Get User Profile</h2>
+Post <br>
+<p>user/:id</p>
+<p>Req:
+  {
+    "email": "ajay@gmail.com",
+    "password": "hello1"
+  }
+</p>
+<br>
 <h2>Assign Role to User</h2>
 Post <br>
 Authenticated Route
