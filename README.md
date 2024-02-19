@@ -10,6 +10,7 @@
   }
 </p>
 <br>
+<h2>Login User</h2>
 <p>auth/login</p>
 <p>Req:
   {
@@ -18,6 +19,7 @@
   }
 </p>
 <br>
+<h2>Assign Role to User</h2>
 Authenticated Route
 <p>user/assign-role</p>
 <p>Req:
@@ -29,6 +31,7 @@ Authenticated Route
 <br>
 <p>fieldToUpdate Enum : [viewe,editor,admin]</p>
 <br>
+<h2>Create Topic</h2>
 <p>topic/create</p>
 Authenticated Route
 <p>Req:
@@ -38,6 +41,7 @@ Authenticated Route
 }
 </p>
 <br>
+<h2>Update Topic</h2>
 <p>topic/:id/update</p>
 Authenticated Route
 <p>Req:
