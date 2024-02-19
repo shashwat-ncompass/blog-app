@@ -6,6 +6,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new MyExceptionsFilter());
 
-  await app.listen(3000);
+  await app.listen(3002);
 }
 bootstrap();
