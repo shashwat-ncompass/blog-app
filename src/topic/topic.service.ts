@@ -13,8 +13,11 @@ import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { GetTopicDto } from './dtos/getTopics.dto';
 import { assignTopicRoleParams } from './types/assignTopicRole';
 import { customError } from 'src/utils/exceptionHandler';
+
 import { GetTopicByIdDto } from './dtos/getTopicsById.dto';
 import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
+import { updateTopicParams } from './types/updateTopicParams';
+
 
 @Injectable()
 export class TopicsService {
@@ -68,7 +71,7 @@ export class TopicsService {
       if (!user) {
         return new customError(404, "Some Error Occured", 'User not found');
       }
-      
+
       const topics = await this.topicRepository.find();
       const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
         id: topic.id,
@@ -112,7 +115,6 @@ export class TopicsService {
   }
 
   async getTopicById(userId: string, topicId: string): Promise<any> {
-    // Check if the user has access to the topic\
     try {
       const userTopic = await this.userTopicRepository.findOne({
         where: {
@@ -120,23 +122,65 @@ export class TopicsService {
           userId,
         },
       })
-
       if (!userTopic || (!userTopic.editor && !userTopic.viewer)) {
         return new customError(403, "Some Error Occured", 'User does not have permission to view this topic');
       }
-
-      // Fetch topic by ID
       const topic = await this.topicRepository.findOne({
         where: {
           id: topicId
         }
       });
-
       if (!topic) {
         return new customError(403, "Some Error Occured", 'Topic Not Found');
       }
-
       return topic;
+    }
+    catch (error) {
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
+    }
+  }
+
+  async updateTopic(
+    reqUserId: string,
+    id: string,
+    updateTopicParams: updateTopicParams
+  ) {
+    try {
+      const fetchTopicResponse = await this.topicRepository
+        .createQueryBuilder()
+        .select()
+        .where('ID=:ID', { ID: id })
+        .getOne()
+
+      if (reqUserId !== fetchTopicResponse.ownerId) {
+        return new customError(
+          HttpStatus.FORBIDDEN,
+          'Some Error Occured',
+          'Access denied',
+        );
+      }
+
+      if (fetchTopicResponse === null) {
+        return new customError(
+          HttpStatus.NOT_FOUND,
+          'Some Error Occured',
+          'Topic not found',
+        );
+      }
+
+      const updateTopicResponse = await this.topicRepository
+        .createQueryBuilder()
+        .update()
+        .set({ [updateTopicParams.fieldToUpdate]: [updateTopicParams.newValue] })
+        .where('ID=:ID', { ID: id })
+        .execute()
+
+      return updateTopicResponse;
+
     } catch (error) {
       return new customError(
         HttpStatus.INTERNAL_SERVER_ERROR,
