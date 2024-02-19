@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import { Topic } from '../typeorm/entities/topic.entity';
 import { CreateTopicDto } from 'src/topic/dtos/topic.dto';
 import { User } from '../typeorm/entities/users.entity';
@@ -61,13 +60,20 @@ export class TopicsService {
   }
 
   async getTopics(userId: string): Promise<any> {
-    // Fetch user details along with user role
+
     try {
       const user = await this.userRepository.findOne({
         where: {
           id: userId,
         },
       });
+
+      if (!user) {
+        return new customError(404, "Some Error Occured", 'User not found');
+      }
+
+      const topics = await this.topicRepository.find();
+
 
       if (!user) {
         // throw new NotFoundException('User not found');
@@ -79,6 +85,7 @@ export class TopicsService {
       // Fetch topics if user has appropriate permissions
       const topics = await this.topicRepository.find();
       //return topics.map(topic => ({ name: topic.name, description: topic.description }));
+
       const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
         id: topic.id,
         name: topic.name,
@@ -128,7 +135,6 @@ export class TopicsService {
           userId,
         },
       })
-
       if (!userTopic || (!userTopic.editor && !userTopic.viewer)) {
         return new customError(403, "Some Error Occured", 'User does not have permission to view this topic');
       }
@@ -138,10 +144,11 @@ export class TopicsService {
           id: topicId
         }
       });
-
       if (!topic) {
         return new customError(403, "Some Error Occured", 'Topic Not Found');
       }
+
+
 
       return topic;
     }

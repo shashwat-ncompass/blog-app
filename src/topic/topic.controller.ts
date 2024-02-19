@@ -5,7 +5,6 @@ import {
   Body,
   UseGuards,
   Get,
-  Param,
   Req,
   Res,
   Next,
@@ -160,16 +159,25 @@ export class TopicsController {
 
   @HasRoles(Role.VIEWER)
   @Get()
-  async getTopics(userId) {
+  async getTopics(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction
+  ) {
     try {
-      const topics = await this.topicsService.getTopics(userId);
-      return { success: true, data: topics };
+      const reqUserId = req['user']['userId']
+      const getAlltopicsResponse = await this.topicsService.getTopics(reqUserId);
+      if (getAlltopicsResponse instanceof customError) {
+        throw getAlltopicsResponse;
+      }
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        'Data Fetched Successfully',
+        getAlltopicsResponse,
+        res,
+      );
     } catch (error) {
-      return {
-        success: false,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message || 'Internal server error',
-      };
+      next(error)
     }
   }
 }
