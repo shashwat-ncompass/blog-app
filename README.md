@@ -3,7 +3,7 @@
 <h2>Register User</h2>
 Post <br>
 <p>auth/register</p>
-Req:
+Req
 ```
     "name":"rakesh",
     "email":"rakesh@gmail.com",
