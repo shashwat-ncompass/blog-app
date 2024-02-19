@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import { Topic } from '../typeorm/entities/topic.entity';
 import { CreateTopicDto } from 'src/topic/dtos/topic.dto';
 import { User } from '../typeorm/entities/users.entity';
@@ -60,44 +59,33 @@ export class TopicsService {
   }
 
   async getTopics(userId: string): Promise<any> {
-    // Fetch user details along with user role
-    try{
-    const user = await this.userRepository.findOne({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-     // throw new NotFoundException('User not found');
-     return new customError(404, "Some Error Occured", 'User not found');
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: userId,
+        },
+      });
+      if (!user) {
+        return new customError(404, "Some Error Occured", 'User not found');
+      }
+      
+      const topics = await this.topicRepository.find();
+      const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
+        id: topic.id,
+        name: topic.name,
+        description: topic.description,
+        ownerId: topic.ownerId,
+        createdAt: topic.createdAt,
+        updatedAt: topic.updatedAt,
+      }));
+      return getTopicDtos;
+    } catch (error) {
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
     }
-
-    // Check if the user is a viewer, admin, or superadmin
-    // if (user.role_details.viewer || user.role_details.admin || user.role_details.superAdmin) {
-    // Fetch topics if user has appropriate permissions
-    const topics = await this.topicRepository.find();
-    //return topics.map(topic => ({ name: topic.name, description: topic.description }));
-    const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
-      id: topic.id,
-      name: topic.name,
-      description: topic.description,
-      ownerId: topic.ownerId,
-      createdAt: topic.createdAt,
-      updatedAt: topic.updatedAt,
-    }));
-    return getTopicDtos;
-  }catch (error) {
-    return new customError(
-      HttpStatus.INTERNAL_SERVER_ERROR,
-      'Some Error Occured',
-      error.message,
-    );
-  }
-
-  
-
-
   }
 
   async assignTopicRole(assignTopicRoleParams: assignTopicRoleParams) {
@@ -147,7 +135,7 @@ export class TopicsService {
       if (!topic) {
         return new customError(403, "Some Error Occured", 'Topic Not Found');
       }
-      
+
       return topic;
     } catch (error) {
       return new customError(
