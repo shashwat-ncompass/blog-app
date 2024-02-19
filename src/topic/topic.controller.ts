@@ -5,31 +5,31 @@ import {
   Body,
   UseGuards,
   Get,
+  Param,
   Req,
   Res,
   Next,
   HttpStatus,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { v4 as uuid } from 'uuid';
-import { NextFunction, Request, Response } from 'express';
-import { Repository } from 'typeorm';
-import { AuthGuard } from '@nestjs/passport';
-
-
 import { TopicsService } from './topic.service';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
+import { UnauthorizedException } from '@nestjs/common';
 import { CreateTopicDto } from './dtos/topic.dto';
 import { GetTopicDto } from './dtos/getTopics.dto';
+import { GetTopicByIdDto } from './dtos/getTopicsById.dto';
+import { AuthGuard } from '@nestjs/passport';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/auth/enums';
 import { HasRoles } from 'src/auth/decorators/has-roles.decorator';
+import { v4 as uuid } from 'uuid';
 import { assignTopicRoleDto } from './dtos/assignTopicRole.dto';
+import { NextFunction, Request, Response } from 'express';
 import { ApiResponse } from 'src/utils/apiResponse';
 import { customError } from 'src/utils/exceptionHandler';
+import { Repository } from 'typeorm';
 import { Topic } from 'src/typeorm/entities/topic.entity';
-
+import { InjectRepository } from '@nestjs/typeorm';
 
 @UseGuards(JwtGuard, RolesGuard)
 @Controller('topic')
@@ -46,8 +46,8 @@ export class TopicsController {
   @Post('create')
   async createTopic(
     @Req() req: Request,
-    @Res() res: Response
-    @Next() next: NextFunction
+    @Res() res: Response,
+    @Next() next: NextFunction,
     @Body() createTopicDto: CreateTopicDto,
   ) {
     try {
@@ -70,17 +70,6 @@ export class TopicsController {
     } catch (error) {
       next(error)
     }
-  }
-
-  @HasRoles(Role.VIEWER)
-  @Get()
-  async getTopics(@Req() req: Request): Promise<GetTopicDto[]> {
-    // Extract user ID from the user object
-    //const userId = user.userId;
-    const user = req.user;
-
-    // Fetch topics based on user permissions
-    return this.topicsService.getTopics(req['user']['userId']);
   }
 
   @HasRoles(Role.SUPERADMIN, Role.ADMIN)
@@ -119,5 +108,42 @@ export class TopicsController {
       next(error);
     }
   }
-}
+   
 
+
+  @HasRoles(Role.VIEWER)
+  @Get(':id')
+  async getTopicById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction, @Param('id') id: string) {
+    try {
+      const userId = req['user']['userId'];
+      // Fetch topic by ID
+      const getTopicByIdResponse = await this.topicsService.getTopicById(userId, id);
+      if (getTopicByIdResponse instanceof customError) {
+        throw getTopicByIdResponse
+      }
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        'Role Assigned Successfully',
+        getTopicByIdResponse,
+        res,
+      );
+    } catch (error) {
+      next(error)
+    }
+  }
+
+@HasRoles(Role.VIEWER)
+  @Get()
+  async getTopics(userId) {
+    try {
+      const topics = await this.topicsService.getTopics(userId);
+      return { success: true, data: topics };
+    } catch (error) {
+      return {
+        success: false,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error.message || 'Internal server error',
+      };
+    }
+  }
+}

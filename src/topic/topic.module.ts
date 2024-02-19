@@ -9,8 +9,9 @@ import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
 
+
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserRole, Topic, UserTopic])], // Import TypeOrmModule and specify the entities to be used
+  imports: [TypeOrmModule.forFeature([User, UserRole, Topic,UserTopic])], // Import TypeOrmModule and specify the entities to be used
   controllers: [TopicsController],
   providers: [JwtStrategy, TopicsService, UserService],
 })
