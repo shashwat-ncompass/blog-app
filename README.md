@@ -1,4 +1,4 @@
-# blog-app
+# Blog-app
 
 <h2>Register User</h2>
 Post <br>
@@ -56,7 +56,7 @@ Authenticated Route
   }
 </p><br>
 <p>fieldToUpdate Enum : [name,description]</p>
-<h2>Update Topic</h2>
+<h2>Get Topic</h2>
 Post <br>
 <p>topic/:id</p>
 Authenticated Route <br>
