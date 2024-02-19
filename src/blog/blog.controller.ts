@@ -1,5 +1,5 @@
-import { Body, Controller, HttpStatus, Post, Param, Req, UseGuards, Delete } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, HttpStatus, Post, Get, Param, Req, Res, UseGuards, Delete, Next } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/auth/enums';
@@ -8,6 +8,7 @@ import { BlogService } from './blog.service';
 import { createBlog } from './dtos/createBlog.dto';
 import { customError } from 'src/utils/exceptionHandler';
 import { editBlog } from './dtos/editBlog.dto';
+import { ApiResponse } from 'src/utils/apiResponse';
 @Controller('blog')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
@@ -87,6 +88,25 @@ export class BlogController {
           error.detail || 'An unexpected error occurred while deleting the blog.'
         );
       }
+    }
+  }
+
+  @Get('topic/:topicId')
+  async getBlogsByTopic(@Param('topicId') topicId: string, @Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const blogs = await this.blogService.findAllBlogsForTopic(topicId);
+      if(blogs instanceof customError){
+        throw blogs;
+      }
+
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        "Blogs loaded",
+        blogs,
+        res,
+      )
+    } catch (error) {
+      next(error);
     }
   }
 }

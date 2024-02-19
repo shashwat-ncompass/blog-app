@@ -95,4 +95,20 @@ export class BlogService {
             return new customError(HttpStatus.INTERNAL_SERVER_ERROR, "Error in updating the blog", error.message);
         }
     }
+
+    async findAllBlogsForTopic(topicId: string): Promise<any> {
+        try{
+            const topicBlogs = await this.topicBlogsRepository.find({
+                where: { topicDetails: { id: topicId } },
+                relations: ['blogDetails']
+              });
+              
+              const blogs = topicBlogs.map(tb => tb.BlogDetails);
+          
+              return blogs;
+        }
+        catch(error){
+            return new customError(HttpStatus.INTERNAL_SERVER_ERROR, "Error in fetching the blogs", error.message);
+        }
+      }
 }
