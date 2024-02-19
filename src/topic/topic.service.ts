@@ -14,6 +14,7 @@ import { GetTopicDto } from './dtos/getTopics.dto';
 import { assignTopicRoleParams } from './types/assignTopicRole';
 import { UserTopic } from 'src/typeorm/entities/user_topic.entity';
 import { customError } from 'src/utils/exceptionHandler';
+import { updateTopicParams } from './types/updateTopicParams';
 
 @Injectable()
 export class TopicsService {
@@ -104,6 +105,51 @@ export class TopicsService {
           return user;
         });
       return assignTopicViewerResponse;
+    } catch (error) {
+      return new customError(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Some Error Occured',
+        error.message,
+      );
+    }
+  }
+
+  async updateTopic(
+    reqUserId: string,
+    id: string,
+    updateTopicParams: updateTopicParams
+  ) {
+    try {
+      const fetchTopicResponse = await this.topicRepository
+        .createQueryBuilder()
+        .select()
+        .where('ID=:ID', { ID: id })
+        .getOne()
+
+      if (reqUserId !== fetchTopicResponse.ownerId) {
+        return new customError(
+          HttpStatus.FORBIDDEN,
+          'Some Error Occured',
+          'Access denied',
+        );
+      }
+
+      if (fetchTopicResponse === null) {
+        return new customError(
+          HttpStatus.NOT_FOUND,
+          'Some Error Occured',
+          'Topic not found',
+        );
+      }
+
+      const updateTopicResponse = await this.topicRepository
+        .createQueryBuilder()
+        .update()
+        .set({ [updateTopicParams.fieldToUpdate]: [updateTopicParams.newValue] })
+        .where('ID=:ID', { ID: id })
+        .execute()
+
+      return updateTopicResponse;
     } catch (error) {
       return new customError(
         HttpStatus.INTERNAL_SERVER_ERROR,
