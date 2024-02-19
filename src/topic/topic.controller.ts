@@ -9,6 +9,7 @@ import {
   Res,
   Next,
   HttpStatus,
+  Param
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { NextFunction, Request, Response } from 'express';
@@ -139,6 +140,7 @@ export class TopicsController {
   @HasRoles(Role.VIEWER)
   @Get(':id')
   async getTopicById(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction, @Param('id') id: string) {
+
     try {
       const userId = req['user']['userId'];
       // Fetch topic by ID

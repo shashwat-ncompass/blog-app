@@ -60,7 +60,6 @@ export class TopicsService {
   }
 
   async getTopics(userId: string): Promise<any> {
-
     try {
       const user = await this.userRepository.findOne({
         where: {
@@ -71,21 +70,10 @@ export class TopicsService {
       if (!user) {
         return new customError(404, "Some Error Occured", 'User not found');
       }
-
-      const topics = await this.topicRepository.find();
-
-
       if (!user) {
-        // throw new NotFoundException('User not found');
         return new customError(404, "Some Error Occured", 'User not found');
       }
-
-      // Check if the user is a viewer, admin, or superadmin
-      // if (user.role_details.viewer || user.role_details.admin || user.role_details.superAdmin) {
-      // Fetch topics if user has appropriate permissions
       const topics = await this.topicRepository.find();
-      //return topics.map(topic => ({ name: topic.name, description: topic.description }));
-
       const getTopicDtos: GetTopicDto[] = topics.map(topic => ({
         id: topic.id,
         name: topic.name,
