@@ -10,10 +10,11 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
+
 import { UserService } from './user.service';
 import { ApiResponse } from 'src/utils/apiResponse';
 import { customError } from 'src/utils/exceptionHandler';
-import { NextFunction, Request, Response } from 'express';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { HasRoles } from 'src/auth/decorators/has-roles.decorator';
@@ -22,7 +23,7 @@ import { assignRoleDto } from 'src/auth/dtos/assignRole.dto';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @HasRoles(Role.VIEWER)
   @UseGuards(JwtGuard, RolesGuard)

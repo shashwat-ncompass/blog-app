@@ -1,10 +1,11 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { assignRoleParams } from 'src/auth/types/assignUserRoleParams';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { User } from 'src/typeorm/entities/users.entity';
 import { customError } from 'src/utils/exceptionHandler';
-import { Repository } from 'typeorm';
 
 function filterUserRoles(userObj: any): string[] {
   const roleKeys = [
@@ -28,15 +29,15 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(UserRole)
     private userRoleRepository: Repository<UserRole>,
-  ) {}
+  ) { }
 
   async findUserById(id: string) {
     try {
       const userProfileResponse = await this.userRepository
-        .createQueryBuilder('u')
-        .leftJoinAndSelect('u.role_details', 'UserRole')
-        .leftJoinAndSelect('u.password_details', 'UserCredential')
-        .where(`u.ID = :ID`, { ID: id })
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role_details', 'UserRole')
+        .leftJoinAndSelect('user.password_details', 'UserCredential')
+        .where(`user.ID = :ID`, { ID: id })
         .execute();
       const roleArray = filterUserRoles(userProfileResponse);
       return { roleArray, userProfileResponse };

@@ -6,20 +6,15 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 
 import { User } from 'src/typeorm/entities/users.entity';
 import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
-import { jwtConstants } from './constants';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
 import { UserService } from 'src/user/user.service';
-
+import { jwtConfig } from 'src/utils/jwt-config';
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserCredential, User, UserRole]),
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60m' },
-    }),
+    JwtModule.registerAsync(jwtConfig),
   ],
   providers: [AuthService, UserService],
   controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -1,23 +1,23 @@
-import { HttpStatus, HttpException, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+
 import { createUserParams } from './types/createUserParams';
 import { createUserPasswordParams } from './types/createUserPasswordParams';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/typeorm/entities/users.entity';
-import { Repository } from 'typeorm';
-import { Md5 } from 'ts-md5';
-import { JwtService } from '@nestjs/jwt';
 import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
 import { customError } from 'src/utils/exceptionHandler';
 import { UserRole } from 'src/typeorm/entities/user_roles.entity';
-import { createRoleDto } from './dtos/createRole.dto';
 import { UserService } from 'src/user/user.service';
+import { encrypt } from 'src/utils/encrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
-  ) {}
+  ) { }
   @InjectRepository(User) private userRepository: Repository<User>;
   @InjectRepository(UserCredential)
   private userCredentialRepository: Repository<UserCredential>;
@@ -37,15 +37,9 @@ export class AuthService {
 
       const createNewUserPasswordResponse = await this.userCredentialRepository
         .save(userCredential)
-        .then((credential) => {
-          return credential;
-        });
 
       const createUserRoleResponse = await this.userRoleRepository
         .save(userRole)
-        .then((role) => {
-          return role;
-        });
 
       const createNewUserResponse = await this.userRepository
         .save({
@@ -53,9 +47,6 @@ export class AuthService {
           role_details: createUserRoleResponse,
           password_details: createNewUserPasswordResponse,
         })
-        .then((user) => {
-          return user;
-        });
 
       return createNewUserResponse;
     } catch (error) {
@@ -77,7 +68,7 @@ export class AuthService {
           'User not found',
         );
 
-      const passwordHash = Md5.hashStr(password);
+      const passwordHash = encrypt(password);
       const userCredential = await this.userCredentialRepository.findOne({
         where: { id: user.id },
       });
