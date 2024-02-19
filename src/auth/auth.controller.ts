@@ -19,7 +19,7 @@ import { encrypt } from 'src/utils/encrypt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('register')
   async createUser(
@@ -66,22 +66,20 @@ export class AuthController {
         body.password,
       );
       if (!user)
-        return new customError(
+        throw new customError(
           HttpStatus.UNAUTHORIZED,
           'Invalid credentials',
           'User not found or invalid password',
         );
 
-      const token = await this.authService.login(body.email, body.password);
-
-      return new ApiResponse(HttpStatus.OK, 'Login successful', token, res);
+      const tokenResponse = await this.authService.login(body.email, body.password);
+      if (tokenResponse instanceof customError) {
+        throw tokenResponse
+      }
+      return new ApiResponse(HttpStatus.OK, 'Login successful', tokenResponse, res);
     } catch (error) {
       next(
-        new customError(
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          'Login Failed',
-          error.message,
-        ),
+        error,
       );
     }
   }
