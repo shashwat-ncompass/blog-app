@@ -63,7 +63,7 @@ export class TopicsController {
       }
       return new ApiResponse(
         HttpStatus.FOUND,
-        'Role Assigned Successfully',
+        'Topic Created Successfully',
         createTopicServiceResponse,
         res,
       );

@@ -1,4 +1,5 @@
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
+import { Blog } from 'src/typeorm/entities/blog.entity';
 
 import { Topic } from 'src/typeorm/entities/topic.entity';
 import { UserCredential } from 'src/typeorm/entities/user_credentials.entity';
@@ -14,7 +15,7 @@ export const dbConfig: TypeOrmModuleAsyncOptions = {
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        entities: [Topic, UserCredential, User, UserRole, UserTopic],
+        entities: [Topic, UserCredential, User, UserRole, UserTopic, Blog],
         synchronize: true,
     }),
 };

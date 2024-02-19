@@ -12,24 +12,32 @@ export class BlogService {
 
     constructor(
         @InjectRepository(Blog) private blogRepository: Repository<Blog>,
-        @InjectRepository(UserTopic) private userTopicsRepository: Repository<UserTopic>,
-        @InjectRepository(TopicBlog) private topicBlogsRepository: Repository<TopicBlog>
+        @InjectRepository(UserTopic) private userTopicsRepository: Repository<UserTopic>
     ) { }
 
     async createBlog(userId: string, topicId: string, createBlog: createBlog): Promise<any> {
-        const user = await this.userTopicsRepository.findOne({
-            where: {
-                topicId: topicId,
-                userId: userId,
-                editor: true
-            }
-        });
-
-        if (!user)
-            return new customError(HttpStatus.UNAUTHORIZED, "User not authorized", "Cannot access");
-
         try {
-            return await this.blogRepository.save(createBlog);
+            const user = await this.userTopicsRepository.findOne({
+                where: {
+                    topicId: topicId,
+                    userId: userId,
+                    editor: true
+                }
+            });
+            const createBlogInstance = this.blogRepository.create({
+                id: createBlog.id,
+                name: createBlog.name,
+                description: createBlog.desc,
+                ownerId: user,
+                header: createBlog.header,
+                footer: createBlog.footer,
+                body: createBlog.body,
+            })
+
+            if (!user)
+                return new customError(HttpStatus.UNAUTHORIZED, "User not authorized", "Cannot access");
+
+            return await this.blogRepository.save(createBlogInstance);
         }
         catch (error) {
             throw new customError(HttpStatus.INTERNAL_SERVER_ERROR, 'Error in saving the blog', error.message);
@@ -56,38 +64,15 @@ export class BlogService {
         }
     }
 
-    async isAdmin(userId: string, blogId: string): Promise<boolean> {
-        const topicBlogEntry = await this.topicBlogsRepository.findOne({
-            where: { 
-              BlogDetails: { id: blogId }
-            },
-            relations: ['TopicDetails', 'BlogDetails']
-          });
-        //   , 'BlogDetails.owner'
-
-        if (!topicBlogEntry) {
-            return false;
-        }
-
-        const topicOwnerId = topicBlogEntry.topicDetails.ownerId;
-        if (topicOwnerId === userId) {
-            return true;
-        }
-
-        return false;
-    }
-
-
     async deleteBlog(userId: string, blogId: string): Promise<any> {
         try {
             const blogEntry = await this.blogRepository.findOne({
                 where: { id: blogId }
             });
 
-            if (!blogEntry || blogEntry.ownerId.id == userId || !await this.isAdmin(userId, blogId)) {
-                return new customError(HttpStatus.UNAUTHORIZED, "User not authorized", "Cannot access");
+            if (!blogEntry || blogEntry.ownerId.id == userId) {
+                throw new customError(HttpStatus.UNAUTHORIZED, "User not authorized", "Cannot access");
             }
-
             const archiveResult = await this.blogRepository.update({ id: blogId }, { isArchive: true });
             return archiveResult;
         }

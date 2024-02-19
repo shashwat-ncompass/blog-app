@@ -1,5 +1,18 @@
-import { Body, Controller, HttpStatus, Post, Param, Req, UseGuards, Delete } from '@nestjs/common';
-import { Request } from 'express';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  Param,
+  Req,
+  UseGuards,
+  Delete,
+  Res,
+  Next
+} from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+import { NextFunction, Request, Response } from 'express';
+
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/auth/enums';
@@ -8,26 +21,38 @@ import { BlogService } from './blog.service';
 import { createBlog } from './dtos/createBlog.dto';
 import { customError } from 'src/utils/exceptionHandler';
 import { editBlog } from './dtos/editBlog.dto';
+import { ApiResponse } from 'src/utils/apiResponse';
 @Controller('blog')
 export class BlogController {
-  constructor(private readonly blogService: BlogService) {}
+  constructor(private readonly blogService: BlogService) { }
 
   @HasRoles(Role.ADMIN, Role.SUPERADMIN)
   @UseGuards(JwtGuard, RolesGuard)
   @Post('create')
   async createBlog(
+    @Res() res: Response,
     @Body() createBlogDto: createBlog,
     @Req() req: Request,
+    @Next() next: NextFunction
   ) {
-    try 
-    {
+    try {
       const userId = req.user['userId'];
       const topicId = req.body.topicId;
-      const response = await this.blogService.createBlog(userId, topicId, createBlogDto);
+      const blogId = uuid();
+      createBlogDto.id = blogId
 
-      return response;
+      const createBlogResponse = await this.blogService.createBlog(userId, topicId, createBlogDto);
+      if (createBlogResponse instanceof customError) {
+        throw createBlogResponse
+      }
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        'Blog Created Successfully',
+        createBlogResponse,
+        res,
+      );
     } catch (error) {
-      throw error;
+      next(error)
     }
   }
 
@@ -38,30 +63,28 @@ export class BlogController {
     @Param('blogId') blogId: string,
     @Body('fieldToUpdate') fieldToUpdate: keyof editBlog,
     @Body('updatedValue') updatedValue: string,
-    @Req() req: Request
+    @Req() req: Request,
+    @Next() next: NextFunction,
+    @Res() res: Response,
   ) {
-
-    const userId = req.user['userId'];
-
     try {
-
+      const userId = req.user['userId'];
       if (!['name', 'desc', 'header', 'footer', 'body'].includes(fieldToUpdate)) {
         throw new customError(HttpStatus.NOT_FOUND, "Invalid Field", "Kindly re-check the field");
       }
-
       const editResult = await this.blogService.editBlog(userId, blogId, fieldToUpdate, updatedValue);
-      return editResult;
+      if (editResult instanceof customError) {
+        throw editResult;
+      }
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        'Blog Updated Successfully',
+        editResult,
+        res,
+      );
 
     } catch (error) {
-      if (error instanceof customError) {
-        throw error;
-      } else {
-        throw new customError(
-          error.status || 500,
-          error.title || 'Edit Blog Error',
-          error.detail || 'An unexpected error occurred while editing the blog.'
-        );
-      }
+      next(error)
     }
   }
 
@@ -70,23 +93,24 @@ export class BlogController {
   @Post(':id/delete')
   async deleteBlog(
     @Param('blogId') blogId: string,
-    @Req() req: any
+    @Req() req: Request,
+    @Next() next: NextFunction,
+    @Res() res: Response,
   ) {
-    const userId = req.user.id;
-
     try {
-      const result = await this.blogService.deleteBlog(userId, blogId);
-      return { message: 'Blog archived successfully', result };
-    } catch (error) {
-      if (error instanceof customError) {
-        throw error;
-      } else {
-        throw new customError(
-          error.status || 500,
-          error.title || 'Delete Blog Error',
-          error.detail || 'An unexpected error occurred while deleting the blog.'
-        );
+      const userId = req.user['userId'];
+      const deleteBlogResponse = await this.blogService.deleteBlog(userId, blogId);
+      if (deleteBlogResponse instanceof customError) {
+        throw deleteBlogResponse;
       }
+      return new ApiResponse(
+        HttpStatus.FOUND,
+        'Blog archived successfully',
+        deleteBlogResponse,
+        res,
+      );
+    } catch (error) {
+      next(error)
     }
   }
 }
