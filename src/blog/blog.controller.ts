@@ -8,7 +8,8 @@ import {
   UseGuards,
   Delete,
   Res,
-  Next
+  Next,
+  Get
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { NextFunction, Request, Response } from 'express';
@@ -61,7 +62,7 @@ export class BlogController {
   @UseGuards(JwtGuard, RolesGuard)
   @Post(':id/update')
   async editBlog(
-    @Param('blogId') blogId: string,
+    @Param('id') blogId: string,
     @Body('fieldToUpdate') fieldToUpdate: keyof editBlog,
     @Body('updatedValue') updatedValue: string,
     @Req() req: Request,
@@ -119,10 +120,9 @@ export class BlogController {
   async getBlogsByTopic(@Param('topicId') topicId: string, @Res() res: Response, @Next() next: NextFunction) {
     try {
       const blogs = await this.blogService.findAllBlogsForTopic(topicId);
-      if(blogs instanceof customError){
+      if (blogs instanceof customError) {
         throw blogs;
       }
-
       return new ApiResponse(
         HttpStatus.FOUND,
         "Blogs loaded",
