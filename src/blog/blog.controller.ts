@@ -94,7 +94,7 @@ export class BlogController {
   @UseGuards(JwtGuard, RolesGuard)
   @Post(':id/delete')
   async deleteBlog(
-    @Param('blogId') blogId: string,
+    @Param('id') blogId: string,
     @Req() req: Request,
     @Next() next: NextFunction,
     @Res() res: Response,

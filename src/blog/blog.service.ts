@@ -78,10 +78,10 @@ export class BlogService {
     async deleteBlog(userId: string, blogId: string): Promise<any> {
         try {
             const blogEntry = await this.blogRepository.findOne({
-                where: { id: blogId }
+                where: { id: blogId },
+                relations: ['ownerId']
             });
-
-            if (!blogEntry || blogEntry.ownerId.id == userId) {
+            if (!blogEntry || blogEntry.ownerId.id !== userId) {
                 return new customError(HttpStatus.UNAUTHORIZED, "User not authorized", "Cannot access");
             }
             const archiveResult = await this.blogRepository.update({ id: blogId }, { isArchive: true });
