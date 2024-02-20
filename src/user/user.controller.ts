@@ -48,7 +48,7 @@ export class UserController {
         throw findAuthorByIdResponse;
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Data Fetched Successfully',
         findAuthorByIdResponse['userProfileResponse'],
         res,
@@ -74,7 +74,7 @@ export class UserController {
         throw assignUserRoleResponse;
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Role Assigned Successfully',
         assignUserRoleResponse,
         res,

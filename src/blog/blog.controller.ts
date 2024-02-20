@@ -106,7 +106,7 @@ export class BlogController {
         throw deleteBlogResponse;
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Blog archived successfully',
         deleteBlogResponse,
         res,
@@ -124,7 +124,7 @@ export class BlogController {
         throw blogs;
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         "Blogs loaded",
         blogs,
         res,

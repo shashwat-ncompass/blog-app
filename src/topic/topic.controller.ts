@@ -99,7 +99,7 @@ export class TopicsController {
         throw assignRoleResponse;
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Role Assigned Successfully',
         assignRoleResponse,
         res,
@@ -125,7 +125,7 @@ export class TopicsController {
         throw updateTopicResponse
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Topic Updated Successfully',
         updateTopicResponse,
         res,
@@ -149,7 +149,7 @@ export class TopicsController {
         throw getTopicByIdResponse
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Role Assigned Successfully',
         getTopicByIdResponse,
         res,
@@ -173,7 +173,7 @@ export class TopicsController {
         throw getAlltopicsResponse;
       }
       return new ApiResponse(
-        HttpStatus.FOUND,
+        HttpStatus.OK,
         'Data Fetched Successfully',
         getAlltopicsResponse,
         res,
